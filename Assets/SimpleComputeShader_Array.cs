@@ -6,23 +6,6 @@ public class SimpleComputeShader_Array : MonoBehaviour
     int kernelIndex_KernelFunction_A;
     int kernelIndex_KernelFunction_B;
 
-    struct KernelSize
-    {
-        public int x;
-        public int y;
-        public int z;
-
-        public KernelSize(uint x, uint y, uint z)
-        {
-            this.x = (int)x;
-            this.y = (int)y;
-            this.z = (int)z;
-        }
-    }
-
-    KernelSize kernelSize_KernelFunction_A;
-    KernelSize kernelSize_KernelFunction_B;
-
     // ComputeShader で算出した結果を保存しておくバッファ。
 
     ComputeBuffer intComputeBuffer;
@@ -46,7 +29,7 @@ public class SimpleComputeShader_Array : MonoBehaviour
 
         // (3) 必要なら ComputeShader にパラメータを渡します。
 
-        this.computeShader.SetFloat("floatValue", 1.0f);
+        this.computeShader.SetInt("intValue", 1);
 
         // (3) ComputeShader を Dispatch メソッドで実行します。
         // 指定したインデックスのカーネルを指定したグループ数で実行します。
@@ -59,6 +42,8 @@ public class SimpleComputeShader_Array : MonoBehaviour
         int[] result = new int[4];
 
         this.intComputeBuffer.GetData(result);
+
+        Debug.Log("RESULT : KernelFunction_A");
 
         for (int i = 0; i < 4; i++)
         {
@@ -73,6 +58,8 @@ public class SimpleComputeShader_Array : MonoBehaviour
         this.computeShader.Dispatch(this.kernelIndex_KernelFunction_B, 1, 1, 1);
 
         this.intComputeBuffer.GetData(result);
+
+        Debug.Log("RESULT : KernelFunction_B");
 
         for (int i = 0; i < 4; i++)
         {

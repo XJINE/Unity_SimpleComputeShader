@@ -2,17 +2,17 @@
 #pragma kernel KernelFunction_B
 
 RWStructuredBuffer<int> intBuffer;
-float floatValue;
+int intValue;
 
 [numthreads(4, 1, 1)]
-void KernelFunction_A(uint groupID : SV_GroupID,
+void KernelFunction_A(uint3 groupID : SV_GroupID,
                       uint3 groupThreadID : SV_GroupThreadID)
 {
-    intBuffer[groupThreadID.x] = groupThreadID.x * floatValue;
+    intBuffer[groupThreadID.x] = groupThreadID.x * intValue;
 }
 
 [numthreads(4, 1, 1)]
-void KernelFunction_B(uint groupID : SV_GroupID,
+void KernelFunction_B(uint3 groupID : SV_GroupID,
                       uint3 groupThreadID : SV_GroupThreadID)
 {
     intBuffer[groupThreadID.x] += 1;
