@@ -6,12 +6,6 @@ RWTexture2D<float4> textureBuffer;
 [numthreads(8, 8, 1)]
 void KernelFunction_A(uint3 dispatchThreadID : SV_DispatchThreadID)
 {
-    // Texture の (x, y) 座標に、RGBA で値を設定します。
-    // Texture の様に多次元のデータを操作するときは、
-    // スレッドやグループを多次元にしたほうが分かりやすいです。
-    // numthreads (8, 8, 1) は numthreads (64, 1, 1) に等しくなりますが、
-    // 引数となる値に違いが生じます。
-
     // SV_DispathThreadID は、SV_Group_ID * numthreads + GroupThreadID です。
 
     float width, height;

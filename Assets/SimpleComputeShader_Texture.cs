@@ -13,13 +13,13 @@ public class SimpleComputeShader_Texture : MonoBehaviour
     int kernelIndex_KernelFunction_A;
     int kernelIndex_KernelFunction_B;
 
-    struct KernelSize
+    struct ThreadSize
     {
         public int x;
         public int y;
         public int z;
 
-        public KernelSize(uint x, uint y, uint z)
+        public ThreadSize(uint x, uint y, uint z)
         {
             this.x = (int)x;
             this.y = (int)y;
@@ -27,8 +27,8 @@ public class SimpleComputeShader_Texture : MonoBehaviour
         }
     }
 
-    KernelSize kernelSize_KernelFunction_A;
-    KernelSize kernelSize_KernelFunction_B;
+    ThreadSize kernelThreadSize_KernelFunction_A;
+    ThreadSize kernelThreadSize_KernelFunction_B;
 
     void Start()
     {
@@ -44,22 +44,28 @@ public class SimpleComputeShader_Texture : MonoBehaviour
         this.renderTexture_A.Create();
         this.renderTexture_B.Create();
 
-        // (1) カーネルのインデックスと、スレッドのサイズを保存します。
+        // カーネルのインデックスと、スレッドのサイズを保存します。
 
-        this.kernelIndex_KernelFunction_A = this.computeShader.FindKernel("KernelFunction_A");
-        this.kernelIndex_KernelFunction_B = this.computeShader.FindKernel("KernelFunction_B");
+        this.kernelIndex_KernelFunction_A
+            = this.computeShader.FindKernel("KernelFunction_A");
+        this.kernelIndex_KernelFunction_B
+            = this.computeShader.FindKernel("KernelFunction_B");
 
-        uint kernelSizeX, kernelSizeY, kernelSizeZ;
-
-        this.computeShader.GetKernelThreadGroupSizes
-            (this.kernelIndex_KernelFunction_A, out kernelSizeX, out kernelSizeY, out kernelSizeZ);
-
-        this.kernelSize_KernelFunction_A = new KernelSize(kernelSizeX, kernelSizeY, kernelSizeZ);
+        uint threadSizeX, threadSizeY, threadSizeZ;
 
         this.computeShader.GetKernelThreadGroupSizes
-            (this.kernelIndex_KernelFunction_B, out kernelSizeX, out kernelSizeY, out kernelSizeZ);
+            (this.kernelIndex_KernelFunction_A,
+             out threadSizeX, out threadSizeY, out threadSizeZ);
 
-        this.kernelSize_KernelFunction_B = new KernelSize(kernelSizeX, kernelSizeY, kernelSizeZ);
+        this.kernelThreadSize_KernelFunction_A
+            = new ThreadSize(threadSizeX, threadSizeY, threadSizeZ);
+
+        this.computeShader.GetKernelThreadGroupSizes
+            (this.kernelIndex_KernelFunction_B,
+             out threadSizeX, out threadSizeY, out threadSizeZ);
+
+        this.kernelThreadSize_KernelFunction_B
+            = new ThreadSize(threadSizeX, threadSizeY, threadSizeZ);
 
         // ComputeShader で計算した結果を保存するためのバッファとして、ここではテクスチャを設定します。
 
@@ -79,14 +85,14 @@ public class SimpleComputeShader_Texture : MonoBehaviour
         // またグループスレッドは、64 / 8 = 8 ピクセルずつ並行に処理します。
 
         this.computeShader.Dispatch(this.kernelIndex_KernelFunction_A,
-                                    this.renderTexture_A.width / this.kernelSize_KernelFunction_A.x,
-                                    this.renderTexture_A.height / this.kernelSize_KernelFunction_A.y,
-                                    this.kernelSize_KernelFunction_A.z);
+                                    this.renderTexture_A.width / this.kernelThreadSize_KernelFunction_A.x,
+                                    this.renderTexture_A.height / this.kernelThreadSize_KernelFunction_A.y,
+                                    this.kernelThreadSize_KernelFunction_A.z);
 
         this.computeShader.Dispatch(this.kernelIndex_KernelFunction_B,
-                                    this.renderTexture_B.width / this.kernelSize_KernelFunction_B.x,
-                                    this.renderTexture_B.height / this.kernelSize_KernelFunction_B.y,
-                                    this.kernelSize_KernelFunction_B.z);
+                                    this.renderTexture_B.width / this.kernelThreadSize_KernelFunction_B.x,
+                                    this.renderTexture_B.height / this.kernelThreadSize_KernelFunction_B.y,
+                                    this.kernelThreadSize_KernelFunction_B.z);
 
         // 実行して得られた結果をテクスチャとして設定します。
 
